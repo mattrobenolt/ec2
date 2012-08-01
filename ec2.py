@@ -21,7 +21,7 @@ class credentials(object):
 
     def __getitem__(self, item):
         item = item.upper()
-        return getattr(self, item[4:]) or os.environ.get(item)
+        return os.environ.get(item) or getattr(self, item[4:])
 
 
 class instances(object):
