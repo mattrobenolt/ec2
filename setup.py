@@ -20,6 +20,10 @@ setup(
     install_requires=[
         'boto'
     ],
+    tests_require=[
+        'nose',
+        'mock',
+    ],
     zip_safe=False,
     classifiers=[
         'Development Status :: 4 - Beta',

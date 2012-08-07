@@ -1,4 +1,7 @@
 publish:
 	python setup.py sdist upload
 
-.PHONY: publish
+test:
+	nosetests
+
+.PHONY: publish test
