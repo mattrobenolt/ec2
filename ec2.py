@@ -1,6 +1,6 @@
 import os
 import re
-import boto
+import boto.ec2
 
 __author__ = 'Matt Robenolt <matt@ydekproductions.com>'
 __version__ = '0.0.2'
@@ -15,13 +15,14 @@ class credentials(object):
     """
     ACCESS_KEY_ID = None
     SECRET_ACCESS_KEY = None
+    REGION_NAME = 'us-east-1'
 
     def keys(self):
-        return ['aws_access_key_id', 'aws_secret_access_key']
+        return ['aws_access_key_id', 'aws_secret_access_key', 'region_name']
 
     def __getitem__(self, item):
         item = item.upper()
-        return os.environ.get(item) or getattr(self, item[4:])
+        return os.environ.get(item) or getattr(self, item, None) or getattr(self, item[4:])
 
 
 class instances(object):
@@ -36,7 +37,7 @@ class instances(object):
         [ ... ]
         """
         if not hasattr(cls, '_instances'):
-            conn = boto.connect_ec2(**credentials())
+            conn = boto.ec2.connect_to_region(**credentials())
             # Ugh
             cls._instances = [i for r in conn.get_all_instances() for i in r.instances]
         return cls._instances

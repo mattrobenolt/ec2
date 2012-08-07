@@ -16,6 +16,7 @@ Credentials are defined as a global state, either through an environment variabl
 ```python
 ec2.credentials.ACCESS_KEY_ID = 'xxx'
 ec2.credentials.SECRET_ACCESS_KEY = 'xxx'
+ec2.credentials.REGION_NAME = 'us-west-2'  # (optional) defaults to us-east-1
 ```
 
 ## Querying
