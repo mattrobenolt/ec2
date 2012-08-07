@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name='ec2',
-    version='0.0.2',
+    version='0.0.3',
     author='Matt Robenolt',
     author_email='matt@ydekproductions.com',
     url='https://github.com/mattrobenolt/ec2',
