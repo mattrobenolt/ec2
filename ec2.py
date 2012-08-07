@@ -5,7 +5,7 @@ import re
 import boto.ec2
 
 __author__ = 'Matt Robenolt <matt@ydekproductions.com>'
-__version__ = '0.0.4'
+__version__ = '0.1.0'
 __license__ = 'BSD'
 __all__ = ('credentials', 'instances')
 
