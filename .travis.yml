@@ -6,4 +6,6 @@ python:
 install:
   - pip install -r requirements.txt --use-mirrors
   - pip install . --use-mirrors
+  # boto requires simplejson for py2.5
+  - "if [[ $TRAVIS_PYTHON_VERSION == '2.5' ]]; then pip install simplejson; fi"
 script: make test
