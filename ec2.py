@@ -47,6 +47,10 @@ class instances(object):
     """Singleten to stem off queries for instances"""
 
     @classmethod
+    def _connect(cls):
+        return boto.ec2.connect_to_region(**credentials())
+
+    @classmethod
     def all(cls):
         """
         Grab all AWS instances and cache them for future filters
@@ -55,7 +59,7 @@ class instances(object):
         [ ... ]
         """
         if not hasattr(cls, '_instances'):
-            conn = boto.ec2.connect_to_region(**credentials())
+            conn = cls._connect()
             # Ugh
             cls._instances = [i for r in conn.get_all_instances() for i in r.instances]
         return cls._instances
