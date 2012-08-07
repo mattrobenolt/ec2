@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 from boto.ec2.instance import Instance
 from unittest import TestCase
 from mock import MagicMock, patch
