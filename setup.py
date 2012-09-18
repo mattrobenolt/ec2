@@ -6,17 +6,17 @@ ec2
 A light weight wrapper around boto to query for AWS EC2 instances in a sane way.
 """
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='ec2',
-    version='0.1.0',
+    version='0.2.0-dev',
     author='Matt Robenolt',
     author_email='matt@ydekproductions.com',
     url='https://github.com/mattrobenolt/ec2',
     description='Query for EC2 instances simply',
     long_description=__doc__,
-    py_modules=['ec2'],
+    packages=find_packages(),
     install_requires=[
         'boto'
     ],
@@ -24,6 +24,7 @@ setup(
         'nose',
         'mock',
     ],
+    test_suite='tests',
     zip_safe=False,
     classifiers=[
         'Development Status :: 4 - Beta',

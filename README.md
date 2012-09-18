@@ -63,6 +63,13 @@ Filters can also be chained.
 ec2.instances.filter(state='running', name__startswith='production')
 ```
 
+`get()` works exactly the same as `filter()`, except it returns just one instance and raises an exception for anything else.
+```python
+ec2.instances.get(name='production-web-01')  # Return a single instance
+ec2.instances.get(name='i-dont-exist')  # Raises an ec2.instances.DoesNotExist exception
+ec2.instances.get(name__like=r'^production-web-\d+$')  # Raises an ec2.instances.MultipleObjectsReturned exception if matched more than one instance
+```
+
 ### Search fields
  * id *(Instance id)*
  * state *(running, terminated, pending, shutting-down, stopping, stopped)*
