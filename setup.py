@@ -3,7 +3,8 @@
 ec2
 ======
 
-A light weight wrapper around boto to query for AWS EC2 instances in a sane way.
+A light-weight wrapper around boto to query for AWS EC2 instances
+and security groups in a sane way.
 """
 
 from setuptools import setup, find_packages
@@ -14,7 +15,7 @@ setup(
     author='Matt Robenolt',
     author_email='matt@ydekproductions.com',
     url='https://github.com/mattrobenolt/ec2',
-    description='Query for EC2 instances simply',
+    description='Query for AWS EC2 instances and security groups simply',
     long_description=__doc__,
     packages=find_packages(),
     install_requires=[
