@@ -9,3 +9,7 @@ print ec2.instances.all()
 for i in ec2.instances.filter(state__iexact='rUnning', name__endswith='01', name__startswith='production'):
     print i.tags['Name']
 print ec2.instances.filter(id__iregex=r'^I\-')
+
+print ec2.security_groups.all()
+for g in ec2.security_groups.filter(name__istartswith='production'):
+    print g.description

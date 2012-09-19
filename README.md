@@ -31,9 +31,14 @@ ec2.credentials.from_file('credentials.csv')
 ec2.instances.all()
 ```
 
+### All Security Groups
+```python
+ec2.security_groups.all()
+```
+
 ### Filtering
 *Filter style is based on Django's ORM*
-All filters map directly to instance properties.
+All filters map directly to instance/security group properties.
 ```python
 ec2.instances.filter(id='i-xxx')  # Exact instance id
 ec2.instances.filter(state='running')  # Exact instance state
@@ -63,14 +68,21 @@ Filters can also be chained.
 ec2.instances.filter(state='running', name__startswith='production')
 ```
 
+Filters can also be used with security groups.
+```python
+ec2.security_groups.filter(name__iexact='PRODUCTION-WEB')
+```
+
 `get()` works exactly the same as `filter()`, except it returns just one instance and raises an exception for anything else.
 ```python
 ec2.instances.get(name='production-web-01')  # Return a single instance
-ec2.instances.get(name='i-dont-exist')  # Raises an ec2.instances.DoesNotExist exception
-ec2.instances.get(name__like=r'^production-web-\d+$')  # Raises an ec2.instances.MultipleObjectsReturned exception if matched more than one instance
+ec2.instances.get(name='i-dont-exist')  # Raises an `ec2.instances.DoesNotExist` exception
+ec2.instances.get(name__like=r'^production-web-\d+$')  # Raises an `ec2.instances.MultipleObjectsReturned` exception if matched more than one instance
+ec2.security_groups.get(name__startswith='production')  # Raises an `ec2.security_groups.MultipleObjectsReturned` exception
 ```
 
 ### Search fields
+#### Instances
  * id *(Instance id)*
  * state *(running, terminated, pending, shutting-down, stopping, stopped)*
  * public_dns_name
@@ -83,7 +95,13 @@ ec2.instances.get(name__like=r'^production-web-\d+$')  # Raises an ec2.instances
 
 All fields can be found at: https://github.com/boto/boto/blob/d91ed8/boto/ec2/instance.py#L157-204
 
-## Example
+#### Security Groups
+ * id *(Security Group id)*
+ * name
+ * vpc_id
+
+
+## Examples
 ### Get public ip addresses from all running instances who are named production-web-{number}
 ```python
 import ec2
@@ -92,4 +110,19 @@ ec2.credentials.SECRET_ACCESS_KEY = 'xxx'
 
 for instance in ec2.instances.filter(state='running', name__like=r'^production-web-\d+$'):
     print instance.ip_address
+```
+
+### Add a role to a security group
+```python
+import ec2
+ec2.credentials.ACCESS_KEY_ID = 'xxx'
+ec2.credentials.SECRET_ACCESS_KEY = 'xxx'
+
+try:
+    group = ec2.security_groups.get(name='production-web')
+except ec2.security_groups.DoesNotExist:
+    import sys
+    sys.stderr.write('Not found.')
+    sys.exit(1)
+group.authorize('tcp', 80, 80, cidr_ip='0.0.0.0/0')
 ```
