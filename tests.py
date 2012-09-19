@@ -178,11 +178,17 @@ class InstancesTestCase(TestCase):
 
     def test_security_groups_get_raises(self):
         with self._patch_connection():
-            with self.assertRaises(ec2.security_groups.MultipleObjectsReturned):
-                ec2.security_groups.get(id__startswith='sg')
+            self.assertRaises(
+                ec2.security_groups.MultipleObjectsReturned,
+                ec2.security_groups.get,
+                id__startswith='sg'
+            )
 
-            with self.assertRaises(ec2.security_groups.DoesNotExist):
-                ec2.security_groups.get(name='crap')
+            self.assertRaises(
+                ec2.security_groups.DoesNotExist,
+                ec2.security_groups.get,
+                name='crap'
+            )
 
 
 class ComparisonTests(TestCase):
