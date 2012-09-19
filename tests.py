@@ -170,11 +170,17 @@ class InstancesTestCase(TestCase):
 
     def test_instances_get_raises(self):
         with self._patch_connection():
-            with self.assertRaises(ec2.instances.MultipleObjectsReturned):
-                ec2.instances.get(id__startswith='i')
+            self.assertRaises(
+                ec2.instances.MultipleObjectsReturned,
+                ec2.instances.get,
+                id__startswith='i'
+            )
 
-            with self.assertRaises(ec2.instances.DoesNotExist):
-                ec2.instances.get(name='crap')
+            self.assertRaises(
+                ec2.instances.DoesNotExist,
+                ec2.instances.get,
+                name='crap'
+            )
 
     def test_security_groups_get_raises(self):
         with self._patch_connection():
