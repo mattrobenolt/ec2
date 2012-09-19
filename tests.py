@@ -1,6 +1,7 @@
 from __future__ import with_statement
 
 from boto.ec2.instance import Instance
+from boto.ec2.securitygroup import SecurityGroup
 from unittest import TestCase
 from mock import MagicMock, patch
 import re
@@ -35,8 +36,17 @@ class InstancesTestCase(TestCase):
             reservation.instances.__iter__ = MagicMock(return_value=iter([i1, i2]))
             reservations.append(reservation)
 
+        security_groups = []
+        for i in xrange(2):
+            sg = SecurityGroup()
+            sg.id = 'sg-abc%d' % i
+            sg.name = 'group-%d' % i
+            sg.description = 'Group %d' % i
+            security_groups.append(sg)
+
         self.connection = MagicMock()
         self.connection.get_all_instances = MagicMock(return_value=reservations)
+        self.connection.get_all_security_groups = MagicMock(return_value=security_groups)
 
     def tearDown(self):
         ec2.credentials.ACCESS_KEY_ID = None
@@ -51,7 +61,7 @@ class InstancesTestCase(TestCase):
             ec2.connection.get_connection()
             mock.assert_called_once_with(aws_access_key_id='abc', aws_secret_access_key='xyz', region_name='us-east-1')
 
-    def test_all(self):
+    def test_instances_all(self):
         "instances.all() should iterate over all reservations and collect all instances, then cache the results"
         with self._patch_connection() as mock:
             instances = ec2.instances.all()
@@ -62,7 +72,17 @@ class InstancesTestCase(TestCase):
             ec2.instances.all()
             mock.assert_called_once()  # Should only be called once from the initial _connect
 
-    def test_filters_integration(self):
+    def test_security_groups_all(self):
+        with self._patch_connection() as mock:
+            groups = ec2.security_groups.all()
+            self.assertEquals(2, len(groups))
+            # all() should cache the connection and list of instances
+            # so when calling a second time, _connect() shouldn't
+            # be called
+            ec2.security_groups.all()
+            mock.assert_called_once()
+
+    def test_instances_filters_integration(self):
         with self._patch_connection():
             instances = ec2.instances.filter(state='crap')
             self.assertEquals(0, len(instances))
@@ -109,6 +129,60 @@ class InstancesTestCase(TestCase):
 
             instances = ec2.instances.filter(id__startswith='i-', name__endswith='-0')
             self.assertEquals(1, len(instances))
+
+    def test_security_groups_filters_integration(self):
+        with self._patch_connection():
+            groups = ec2.security_groups.filter(name='crap')
+            self.assertEquals(0, len(groups))
+
+            groups = ec2.security_groups.filter(id__exact='sg-abc0')
+            self.assertEquals(1, len(groups))
+
+            groups = ec2.security_groups.filter(id__iexact='SG-ABC0')
+            self.assertEquals(1, len(groups))
+
+            groups = ec2.security_groups.filter(id__like=r'^sg\-abc\d$')
+            self.assertEquals(2, len(groups))
+
+            groups = ec2.security_groups.filter(id__ilike=r'^SG\-ABC\d$')
+            self.assertEquals(2, len(groups))
+
+            groups = ec2.security_groups.filter(id__contains='1')
+            self.assertEquals(1, len(groups))
+
+            groups = ec2.security_groups.filter(id__icontains='ABC')
+            self.assertEquals(2, len(groups))
+
+            groups = ec2.security_groups.filter(id__startswith='sg-')
+            self.assertEquals(2, len(groups))
+
+            groups = ec2.security_groups.filter(id__istartswith='SG-')
+            self.assertEquals(2, len(groups))
+
+            groups = ec2.security_groups.filter(id__endswith='c0')
+            self.assertEquals(1, len(groups))
+
+            groups = ec2.security_groups.filter(id__iendswith='C0')
+            self.assertEquals(1, len(groups))
+
+            groups = ec2.security_groups.filter(id__startswith='sg-', name__endswith='-0')
+            self.assertEquals(1, len(groups))
+
+    def test_instances_get_raises(self):
+        with self._patch_connection():
+            with self.assertRaises(ec2.instances.MultipleObjectsReturned):
+                ec2.instances.get(id__startswith='i')
+
+            with self.assertRaises(ec2.instances.DoesNotExist):
+                ec2.instances.get(name='crap')
+
+    def test_security_groups_get_raises(self):
+        with self._patch_connection():
+            with self.assertRaises(ec2.security_groups.MultipleObjectsReturned):
+                ec2.security_groups.get(id__startswith='sg')
+
+            with self.assertRaises(ec2.security_groups.DoesNotExist):
+                ec2.security_groups.get(name='crap')
 
 
 class ComparisonTests(TestCase):
