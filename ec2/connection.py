@@ -1,3 +1,11 @@
+"""
+ec2.connection
+~~~~~~~~~~~~~~
+
+:copyright: (c) 2012 by Matt Robenolt.
+:license: BSD, see LICENSE for more details.
+"""
+
 import os
 import boto.ec2
 

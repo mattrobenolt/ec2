@@ -1,3 +1,11 @@
+"""
+ec2.helpers
+~~~~~~~~~~~
+
+:copyright: (c) 2012 by Matt Robenolt.
+:license: BSD, see LICENSE for more details.
+"""
+
 import re
 
 def make_compare(key, value, instance):
