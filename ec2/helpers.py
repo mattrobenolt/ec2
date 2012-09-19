@@ -8,7 +8,7 @@ ec2.helpers
 
 import re
 
-def make_compare(key, value, instance):
+def make_compare(key, value, obj):
     "Map a key name to a specific comparison function"
     if '__' not in key:
         # If no __ exists, default to doing an "exact" comparison
@@ -17,7 +17,7 @@ def make_compare(key, value, instance):
         key, comp = key.rsplit('__', 1)
     # Check if comp is valid
     if hasattr(Compare, comp):
-        return getattr(Compare, comp)(key, value, instance)
+        return getattr(Compare, comp)(key, value, obj)
     raise AttributeError("No comparison '%s'" % comp)
 
 
@@ -25,133 +25,133 @@ class Compare(object):
     "Private class, namespacing comparison functions."
 
     @staticmethod
-    def exact(key, value, instance):
+    def exact(key, value, obj):
         try:
-            return getattr(instance, key) == value
+            return getattr(obj, key) == value
         except AttributeError, e:
             # Fall back to checking tags
-            if hasattr(instance, 'tags'):
-                for tag in instance.tags:
+            if hasattr(obj, 'tags'):
+                for tag in obj.tags:
                     if key == tag.lower():
-                        return instance.tags[tag] == value
+                        return obj.tags[tag] == value
             # There is no tag found either
             raise e
 
     @staticmethod
-    def iexact(key, value, instance):
+    def iexact(key, value, obj):
         value = value.lower()
         try:
-            return getattr(instance, key).lower() == value
+            return getattr(obj, key).lower() == value
         except AttributeError, e:
             # Fall back to checking tags
-            if hasattr(instance, 'tags'):
-                for tag in instance.tags:
+            if hasattr(obj, 'tags'):
+                for tag in obj.tags:
                     if key == tag.lower():
-                        return instance.tags[tag].lower() == value
+                        return obj.tags[tag].lower() == value
             # There is no tag found either
             raise e
 
     @staticmethod
-    def like(key, value, instance):
+    def like(key, value, obj):
         if isinstance(value, basestring):
             # If a string is passed in, we want to convert it to a pattern object
             value = re.compile(value)
         try:
-            return bool(value.match(getattr(instance, key)))
+            return bool(value.match(getattr(obj, key)))
         except AttributeError, e:
             # Fall back to checking tags
-            if hasattr(instance, 'tags'):
-                for tag in instance.tags:
+            if hasattr(obj, 'tags'):
+                for tag in obj.tags:
                     if key == tag.lower():
-                        return bool(value.match(instance.tags[tag]))
+                        return bool(value.match(obj.tags[tag]))
             # There is no tag found either
             raise e
     # Django alias
     regex = like
 
     @staticmethod
-    def ilike(key, value, instance):
-        return Compare.like(key, re.compile(value, re.I), instance)
+    def ilike(key, value, obj):
+        return Compare.like(key, re.compile(value, re.I), obj)
     # Django alias
     iregex = ilike
 
     @staticmethod
-    def contains(key, value, instance):
+    def contains(key, value, obj):
         try:
-            return value in getattr(instance, key)
+            return value in getattr(obj, key)
         except AttributeError, e:
             # Fall back to checking tags
-            if hasattr(instance, 'tags'):
-                for tag in instance.tags:
+            if hasattr(obj, 'tags'):
+                for tag in obj.tags:
                     if key == tag.lower():
-                        return value in instance.tags[tag]
+                        return value in obj.tags[tag]
             # There is no tag found either
             raise e
 
     @staticmethod
-    def icontains(key, value, instance):
+    def icontains(key, value, obj):
         value = value.lower()
         try:
-            return value in getattr(instance, key).lower()
+            return value in getattr(obj, key).lower()
         except AttributeError, e:
             # Fall back to checking tags
-            if hasattr(instance, 'tags'):
-                for tag in instance.tags:
+            if hasattr(obj, 'tags'):
+                for tag in obj.tags:
                     if key == tag.lower():
-                        return value in instance.tags[tag]
+                        return value in obj.tags[tag]
             # There is no tag found either
             raise e
 
     @staticmethod
-    def startswith(key, value, instance):
+    def startswith(key, value, obj):
         try:
-            return getattr(instance, key).startswith(value)
+            return getattr(obj, key).startswith(value)
         except AttributeError, e:
             # Fall back to checking tags
-            if hasattr(instance, 'tags'):
-                for tag in instance.tags:
+            if hasattr(obj, 'tags'):
+                for tag in obj.tags:
                     if key == tag.lower():
-                        return instance.tags[tag].startswith(value)
+                        return obj.tags[tag].startswith(value)
             # There is no tag found either
             raise e
 
     @staticmethod
-    def istartswith(key, value, instance):
+    def istartswith(key, value, obj):
         value = value.lower()
         try:
-            return getattr(instance, key).startswith(value)
+            return getattr(obj, key).startswith(value)
         except AttributeError, e:
             # Fall back to checking tags
-            if hasattr(instance, 'tags'):
-                for tag in instance.tags:
+            if hasattr(obj, 'tags'):
+                for tag in obj.tags:
                     if key == tag.lower():
-                        return instance.tags[tag].lower().startswith(value)
+                        return obj.tags[tag].lower().startswith(value)
             # There is no tag found either
             raise e
 
     @staticmethod
-    def endswith(key, value, instance):
+    def endswith(key, value, obj):
         try:
-            return getattr(instance, key).endswith(value)
+            return getattr(obj, key).endswith(value)
         except AttributeError, e:
             # Fall back to checking tags
-            if hasattr(instance, 'tags'):
-                for tag in instance.tags:
+            if hasattr(obj, 'tags'):
+                for tag in obj.tags:
                     if key == tag.lower():
-                        return instance.tags[tag].endswith(value)
+                        return obj.tags[tag].endswith(value)
             # There is no tag found either
             raise e
 
     @staticmethod
-    def iendswith(key, value, instance):
+    def iendswith(key, value, obj):
         value = value.lower()
         try:
-            return getattr(instance, key).endswith(value)
+            return getattr(obj, key).endswith(value)
         except AttributeError, e:
             # Fall back to checking tags
-            if hasattr(instance, 'tags'):
-                for tag in instance.tags:
+            if hasattr(obj, 'tags'):
+                for tag in obj.tags:
                     if key == tag.lower():
-                        return instance.tags[tag].lower().endswith(value)
+                        return obj.tags[tag].lower().endswith(value)
             # There is no tag found either
             raise e
