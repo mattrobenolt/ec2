@@ -352,3 +352,8 @@ class ComparisonTests(TestCase):
         self.assertFalse(ec2.helpers.Compare.iendswith('state', 'NOTING', i))
         self.assertTrue(ec2.helpers.Compare.iendswith('name', 'SOME', i))
         self.assertFalse(ec2.helpers.Compare.iendswith('name', 'NOTSOME', i))
+
+    def test_isnull(self):
+        i = self.instance
+        self.assertTrue(ec2.helpers.Compare.isnull('foo', True, i))
+        self.assertFalse(ec2.helpers.Compare.isnull('name', False, i))

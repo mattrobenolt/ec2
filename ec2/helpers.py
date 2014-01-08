@@ -155,3 +155,18 @@ class Compare(object):
                         return obj.tags[tag].lower().endswith(value)
             # There is no tag found either
             raise e
+            
+
+    @staticmethod
+    def isnull(key, value, obj):
+        try:
+            return getattr(obj, key, None) is None == value
+        except AttributeError, e:
+            # Fall back to checking tags
+            if hasattr(obj, 'tags'):
+                for tag in obj.tags:
+                    if key == tag.lower():
+                        return obj.tags[tag] is None == value
+                return True == value
+            # There is no tag found either
+            raise e
