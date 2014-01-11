@@ -160,7 +160,7 @@ class Compare(object):
     @staticmethod
     def isnull(key, value, obj):
         try:
-            return getattr(obj, key, None) is None == value
+            return getattr(obj, key) is None == value
         except AttributeError, e:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
