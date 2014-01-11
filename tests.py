@@ -8,6 +8,9 @@ import re
 
 import ec2
 
+RUNNING_STATE = InstanceState(16, 'running')
+STOPPED_STATE = InstanceState(64, 'stopped')
+
 
 class InstancesTestCase(TestCase):
     def _patch_connection(self):
@@ -24,12 +27,12 @@ class InstancesTestCase(TestCase):
         for i in xrange(2):
             i1 = Instance()
             i1.id = 'i-abc%d' % instance_count
-            i1._state = InstanceState(16, 'running')
+            i1._state = RUNNING_STATE
             i1.tags = {'Name': 'instance-%d' % instance_count}
             instance_count += 1
             i2 = Instance()
             i2.id = 'i-abc%d' % instance_count
-            i2._state = InstanceState(64, 'stopped')
+            i2._state = STOPPED_STATE
             i2.tags = {'Name': 'instance-%d' % instance_count}
             instance_count += 1
             reservation = MagicMock()
@@ -200,7 +203,7 @@ class InstancesTestCase(TestCase):
 class ComparisonTests(TestCase):
     def setUp(self):
         self.instance = Instance()
-        self.instance._state = InstanceState(16, 'running')
+        self.instance._state = RUNNING_STATE
         self.instance.id = 'i-abc'
         self.instance.tags = {'Name': 'awesome'}
 
