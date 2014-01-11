@@ -1,6 +1,6 @@
 from __future__ import with_statement
 
-from boto.ec2.instance import Instance
+from boto.ec2.instance import Instance, InstanceState
 from boto.ec2.securitygroup import SecurityGroup
 from unittest import TestCase
 from mock import MagicMock, patch
@@ -24,12 +24,12 @@ class InstancesTestCase(TestCase):
         for i in xrange(2):
             i1 = Instance()
             i1.id = 'i-abc%d' % instance_count
-            i1.state = 'running'
+            i1._state = InstanceState(16, 'running')
             i1.tags = {'Name': 'instance-%d' % instance_count}
             instance_count += 1
             i2 = Instance()
             i2.id = 'i-abc%d' % instance_count
-            i2.state = 'stopped'
+            i2._state = InstanceState(64, 'stopped')
             i2.tags = {'Name': 'instance-%d' % instance_count}
             instance_count += 1
             reservation = MagicMock()
@@ -200,7 +200,7 @@ class InstancesTestCase(TestCase):
 class ComparisonTests(TestCase):
     def setUp(self):
         self.instance = Instance()
-        self.instance.state = 'running'
+        self.instance._state = InstanceState(16, 'running')
         self.instance.id = 'i-abc'
         self.instance.tags = {'Name': 'awesome'}
 
