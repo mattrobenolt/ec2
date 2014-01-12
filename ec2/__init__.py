@@ -1,8 +1,8 @@
 """
 ec2
-~~~~~
+~~~
 
-:copyright: (c) 2012 by Matt Robenolt.
+:copyright: (c) 2014 by Matt Robenolt.
 :license: BSD, see LICENSE for more details.
 """
 
@@ -11,5 +11,5 @@ __version__ = '0.2.0'
 __license__ = 'BSD'
 __all__ = ('credentials', 'instances', 'security_groups')
 
-from .connection import credentials
-from .types import instances, security_groups
+from .connection import credentials  # noqa
+from .types import instances, security_groups  # noqa

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 ec2
-======
+===
 
 A light-weight wrapper around boto to query for AWS EC2 instances
 and security groups in a sane way.
@@ -19,7 +19,7 @@ setup(
     long_description=__doc__,
     packages=find_packages(),
     install_requires=[
-        'boto'
+        'boto',
     ],
     tests_require=[
         'mock',
@@ -30,6 +30,6 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
-        'Topic :: Software Development'
+        'Topic :: Software Development',
     ],
 )
