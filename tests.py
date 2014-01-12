@@ -133,6 +133,12 @@ class InstancesTestCase(unittest.TestCase):
             instances = ec2.instances.filter(id__startswith='i-', name__endswith='-0')
             self.assertEquals(1, len(instances))
 
+            instances = ec2.instances.filter(id__isnull=False)
+            self.assertEquals(4, len(instances))
+
+            instances = ec2.instances.filter(id__isnull=True)
+            self.assertEquals(0, len(instances))
+
     def test_security_groups_filters_integration(self):
         with self._patch_connection():
             groups = ec2.security_groups.filter(name='crap')
@@ -170,6 +176,12 @@ class InstancesTestCase(unittest.TestCase):
 
             groups = ec2.security_groups.filter(id__startswith='sg-', name__endswith='-0')
             self.assertEquals(1, len(groups))
+
+            groups = ec2.security_groups.filter(id__isnull=False)
+            self.assertEquals(2, len(groups))
+
+            groups = ec2.security_groups.filter(id__isnull=True)
+            self.assertEquals(0, len(groups))
 
     def test_instances_get_raises(self):
         with self._patch_connection():
@@ -263,6 +275,10 @@ class ComparisonTests(unittest.TestCase):
         with patch('ec2.helpers.Compare.iendswith') as mock:
             ec2.helpers.make_compare('state__iendswith', 'running', i)
             mock.assert_called_once_with('state', 'running', i)
+
+        with patch('ec2.helpers.Compare.isnull') as mock:
+            ec2.helpers.make_compare('state__isnull', True, i)
+            mock.assert_called_once_with('state', True, i)
 
     def test_exact(self):
         i = self.instance
@@ -359,6 +375,8 @@ class ComparisonTests(unittest.TestCase):
     def test_isnull(self):
         i = self.instance
         self.assertTrue(ec2.helpers.Compare.isnull('foo', True, i))
+        self.assertFalse(ec2.helpers.Compare.isnull('foo', False, i))
+        self.assertFalse(ec2.helpers.Compare.isnull('name', True, i))
         self.assertFalse(ec2.helpers.Compare.isnull('name', False, i))
 
 

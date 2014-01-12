@@ -73,6 +73,7 @@ class objects_base(object):
             istartswith: case insensitive startswith
             endswith: check if attribute value ends with the string
             iendswith: case insensitive startswith
+            isnull: check if the attribute does not exist
 
         >>> ec2.instances.filter(name__startswith='production')
         [ ... ]

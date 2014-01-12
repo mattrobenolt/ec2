@@ -8,6 +8,7 @@ ec2.helpers
 
 import re
 
+
 def make_compare(key, value, obj):
     "Map a key name to a specific comparison function"
     if '__' not in key:
@@ -155,18 +156,16 @@ class Compare(object):
                         return obj.tags[tag].lower().endswith(value)
             # There is no tag found either
             raise e
-            
 
     @staticmethod
     def isnull(key, value, obj):
         try:
-            return getattr(obj, key) is None == value
-        except AttributeError, e:
+            return (getattr(obj, key) is None) == value
+        except AttributeError:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
                     if key == tag.lower():
-                        return obj.tags[tag] is None == value
-                return True == value
-            # There is no tag found either
-            raise e
+                        return (obj.tags[tag] is None) and value
+            # There is no tag found either, so must be null
+            return True and value
