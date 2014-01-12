@@ -6,8 +6,13 @@ ec2
 :license: BSD, see LICENSE for more details.
 """
 
+try:
+    __version__ = __import__('pkg_resources') \
+        .get_distribution('ec2').version
+except Exception:
+    __version__ = 'unknown'
+
 __author__ = 'Matt Robenolt <matt@ydekproductions.com>'
-__version__ = '0.2.0'
 __license__ = 'BSD'
 __all__ = ('credentials', 'instances', 'security_groups')
 
