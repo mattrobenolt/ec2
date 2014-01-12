@@ -29,7 +29,7 @@ class Compare(object):
     def exact(key, value, obj):
         try:
             return getattr(obj, key) == value
-        except AttributeError, e:
+        except AttributeError as e:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -43,7 +43,7 @@ class Compare(object):
         value = value.lower()
         try:
             return getattr(obj, key).lower() == value
-        except AttributeError, e:
+        except AttributeError as e:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -59,7 +59,7 @@ class Compare(object):
             value = re.compile(value)
         try:
             return bool(value.match(getattr(obj, key)))
-        except AttributeError, e:
+        except AttributeError as e:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -80,7 +80,7 @@ class Compare(object):
     def contains(key, value, obj):
         try:
             return value in getattr(obj, key)
-        except AttributeError, e:
+        except AttributeError as e:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -94,7 +94,7 @@ class Compare(object):
         value = value.lower()
         try:
             return value in getattr(obj, key).lower()
-        except AttributeError, e:
+        except AttributeError as e:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -107,7 +107,7 @@ class Compare(object):
     def startswith(key, value, obj):
         try:
             return getattr(obj, key).startswith(value)
-        except AttributeError, e:
+        except AttributeError as e:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -121,7 +121,7 @@ class Compare(object):
         value = value.lower()
         try:
             return getattr(obj, key).startswith(value)
-        except AttributeError, e:
+        except AttributeError as e:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -134,7 +134,7 @@ class Compare(object):
     def endswith(key, value, obj):
         try:
             return getattr(obj, key).endswith(value)
-        except AttributeError, e:
+        except AttributeError as e:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -148,7 +148,7 @@ class Compare(object):
         value = value.lower()
         try:
             return getattr(obj, key).endswith(value)
-        except AttributeError, e:
+        except AttributeError as e:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
