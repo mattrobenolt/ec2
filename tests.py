@@ -2,8 +2,8 @@ from __future__ import with_statement
 
 from boto.ec2.instance import Instance, InstanceState
 from boto.ec2.securitygroup import SecurityGroup
-from unittest import TestCase
 from mock import MagicMock, patch
+import unittest
 import re
 
 import ec2
@@ -12,7 +12,7 @@ RUNNING_STATE = InstanceState(16, 'running')
 STOPPED_STATE = InstanceState(64, 'stopped')
 
 
-class InstancesTestCase(TestCase):
+class InstancesTestCase(unittest.TestCase):
     def _patch_connection(self):
         return patch('ec2.types.get_connection', return_value=self.connection)
 
@@ -200,7 +200,7 @@ class InstancesTestCase(TestCase):
             )
 
 
-class ComparisonTests(TestCase):
+class ComparisonTests(unittest.TestCase):
     def setUp(self):
         self.instance = Instance()
         self.instance._state = RUNNING_STATE
@@ -360,3 +360,7 @@ class ComparisonTests(TestCase):
         i = self.instance
         self.assertTrue(ec2.helpers.Compare.isnull('foo', True, i))
         self.assertFalse(ec2.helpers.Compare.isnull('name', False, i))
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

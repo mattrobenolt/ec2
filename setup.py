@@ -22,7 +22,6 @@ setup(
         'boto'
     ],
     tests_require=[
-        'nose',
         'mock',
     ],
     test_suite='tests',

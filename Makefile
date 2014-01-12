@@ -5,6 +5,6 @@ clean:
 	rm -rf build dist *.egg-info
 
 test:
-	nosetests
+	python setup.py test
 
 .PHONY: publish clean test
