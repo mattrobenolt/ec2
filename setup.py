@@ -11,7 +11,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='ec2',
-    version='0.3.0',
+    version='0.3.1',
     author='Matt Robenolt',
     author_email='matt@ydekproductions.com',
     url='https://github.com/mattrobenolt/ec2',
