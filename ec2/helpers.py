@@ -36,7 +36,7 @@ class Compare(object):
                     if key == tag.lower():
                         return obj.tags[tag] == value
             # There is no tag found either
-            raise e
+            return False
 
     @staticmethod
     def iexact(key, value, obj):
@@ -50,7 +50,7 @@ class Compare(object):
                     if key == tag.lower():
                         return obj.tags[tag].lower() == value
             # There is no tag found either
-            raise e
+            return False
 
     @staticmethod
     def like(key, value, obj):
@@ -66,7 +66,7 @@ class Compare(object):
                     if key == tag.lower():
                         return bool(value.match(obj.tags[tag]))
             # There is no tag found either
-            raise e
+            return False
     # Django alias
     regex = like
 
@@ -87,7 +87,7 @@ class Compare(object):
                     if key == tag.lower():
                         return value in obj.tags[tag]
             # There is no tag found either
-            raise e
+            return False
 
     @staticmethod
     def icontains(key, value, obj):
@@ -101,7 +101,7 @@ class Compare(object):
                     if key == tag.lower():
                         return value in obj.tags[tag]
             # There is no tag found either
-            raise e
+            return False
 
     @staticmethod
     def startswith(key, value, obj):
@@ -114,7 +114,7 @@ class Compare(object):
                     if key == tag.lower():
                         return obj.tags[tag].startswith(value)
             # There is no tag found either
-            raise e
+            return False
 
     @staticmethod
     def istartswith(key, value, obj):
@@ -128,7 +128,7 @@ class Compare(object):
                     if key == tag.lower():
                         return obj.tags[tag].lower().startswith(value)
             # There is no tag found either
-            raise e
+            return False
 
     @staticmethod
     def endswith(key, value, obj):
@@ -141,7 +141,7 @@ class Compare(object):
                     if key == tag.lower():
                         return obj.tags[tag].endswith(value)
             # There is no tag found either
-            raise e
+            return False
 
     @staticmethod
     def iendswith(key, value, obj):
@@ -155,7 +155,7 @@ class Compare(object):
                     if key == tag.lower():
                         return obj.tags[tag].lower().endswith(value)
             # There is no tag found either
-            raise e
+            return False
 
     @staticmethod
     def isnull(key, value, obj):
