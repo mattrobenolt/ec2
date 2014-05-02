@@ -14,7 +14,7 @@ except Exception:
 
 __author__ = 'Matt Robenolt <matt@ydekproductions.com>'
 __license__ = 'BSD'
-__all__ = ('credentials', 'instances', 'security_groups')
+__all__ = ('credentials', 'instances', 'security_groups', 'vpcs')
 
 from .connection import credentials  # noqa
-from .types import instances, security_groups  # noqa
+from .types import instances, security_groups, vpcs  # noqa

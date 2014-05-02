@@ -2,6 +2,7 @@ from __future__ import with_statement
 
 from boto.ec2.instance import Instance, InstanceState
 from boto.ec2.securitygroup import SecurityGroup
+from boto.vpc.vpc import VPC
 from mock import MagicMock, patch
 import unittest
 import re
@@ -15,6 +16,9 @@ STOPPED_STATE = InstanceState(64, 'stopped')
 class InstancesTestCase(unittest.TestCase):
     def _patch_connection(self):
         return patch('ec2.types.get_connection', return_value=self.connection)
+
+    def _patch_vpc_connection(self):
+        return patch('ec2.types.get_vpc_connection', return_value=self.vpc_connection)
 
     def setUp(self):
         ec2.credentials.ACCESS_KEY_ID = 'abc'
@@ -47,9 +51,28 @@ class InstancesTestCase(unittest.TestCase):
             sg.description = 'Group %d' % i
             security_groups.append(sg)
 
+        vpcs = []
+        for i in xrange(2):
+            vpc = VPC()
+            vpc.id = 'vpc-abc%d' % i
+            if i % 2:
+                vpc.state = 'pending'
+                vpc.is_default = False
+                vpc.instance_tenancy = 'default'
+            else:
+                vpc.state = 'available'
+                vpc.is_default = True
+                vpc.instance_tenancy = 'dedicated'
+            vpc.cidr_block = '10.%d.0.0/16' % i
+            vpc.dhcp_options_id = 'dopt-abc%d' % i
+            vpcs.append(vpc)
+
         self.connection = MagicMock()
         self.connection.get_all_instances = MagicMock(return_value=reservations)
         self.connection.get_all_security_groups = MagicMock(return_value=security_groups)
+
+        self.vpc_connection = MagicMock()
+        self.vpc_connection.get_all_vpcs = MagicMock(return_value=vpcs)
 
     def tearDown(self):
         ec2.credentials.ACCESS_KEY_ID = None
@@ -62,6 +85,10 @@ class InstancesTestCase(unittest.TestCase):
     def test_connect(self):
         with patch('boto.ec2.connect_to_region') as mock:
             ec2.connection.get_connection()
+            mock.assert_called_once_with(aws_access_key_id='abc', aws_secret_access_key='xyz', region_name='us-east-1')
+
+        with patch('boto.vpc.connect_to_region') as mock:
+            ec2.connection.get_vpc_connection()
             mock.assert_called_once_with(aws_access_key_id='abc', aws_secret_access_key='xyz', region_name='us-east-1')
 
     def test_instances_all(self):
@@ -83,6 +110,13 @@ class InstancesTestCase(unittest.TestCase):
             # so when calling a second time, _connect() shouldn't
             # be called
             ec2.security_groups.all()
+            mock.assert_called_once()
+
+    def test_vpcs_all(self):
+        with self._patch_vpc_connection() as mock:
+            vpcs = ec2.vpcs.all()
+            self.assertEquals(2, len(vpcs))
+            ec2.vpcs.all()
             mock.assert_called_once()
 
     def test_instances_filters_integration(self):
@@ -183,6 +217,47 @@ class InstancesTestCase(unittest.TestCase):
             groups = ec2.security_groups.filter(id__isnull=True)
             self.assertEquals(0, len(groups))
 
+    def test_vpc_filters_integration(self):
+        with self._patch_vpc_connection():
+            groups = ec2.vpcs.filter(id__exact='vpc-abc0')
+            self.assertEquals(1, len(groups))
+
+            groups = ec2.vpcs.filter(id__iexact='VPC-ABC0')
+            self.assertEquals(1, len(groups))
+
+            groups = ec2.vpcs.filter(id__like=r'^vpc\-abc\d$')
+            self.assertEquals(2, len(groups))
+
+            groups = ec2.vpcs.filter(id__ilike=r'^VPC\-ABC\d$')
+            self.assertEquals(2, len(groups))
+
+            groups = ec2.vpcs.filter(id__contains='1')
+            self.assertEquals(1, len(groups))
+
+            groups = ec2.vpcs.filter(id__icontains='ABC')
+            self.assertEquals(2, len(groups))
+
+            groups = ec2.vpcs.filter(id__startswith='vpc-')
+            self.assertEquals(2, len(groups))
+
+            groups = ec2.vpcs.filter(id__istartswith='vpc-')
+            self.assertEquals(2, len(groups))
+
+            groups = ec2.vpcs.filter(id__endswith='c0')
+            self.assertEquals(1, len(groups))
+
+            groups = ec2.vpcs.filter(id__iendswith='C0')
+            self.assertEquals(1, len(groups))
+
+            groups = ec2.vpcs.filter(id__startswith='vpc-', dhcp_options_id__endswith='abc0')
+            self.assertEquals(1, len(groups))
+
+            groups = ec2.vpcs.filter(id__isnull=False)
+            self.assertEquals(2, len(groups))
+
+            groups = ec2.vpcs.filter(id__isnull=True)
+            self.assertEquals(0, len(groups))
+
     def test_instances_get_raises(self):
         with self._patch_connection():
             self.assertRaises(
@@ -211,6 +286,19 @@ class InstancesTestCase(unittest.TestCase):
                 name='crap'
             )
 
+    def test_vpcs_get_raises(self):
+        with self._patch_connection():
+            self.assertRaises(
+                ec2.vpcs.MultipleObjectsReturned,
+                ec2.vpcs.get,
+                id__startswith='vpc'
+            )
+
+            self.assertRaises(
+                ec2.vpcs.DoesNotExist,
+                ec2.vpcs.get,
+                name='crap'
+            )
 
 class ComparisonTests(unittest.TestCase):
     def setUp(self):
