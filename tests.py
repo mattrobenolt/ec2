@@ -13,13 +13,7 @@ RUNNING_STATE = InstanceState(16, 'running')
 STOPPED_STATE = InstanceState(64, 'stopped')
 
 
-class InstancesTestCase(unittest.TestCase):
-    def _patch_connection(self):
-        return patch('ec2.types.get_connection', return_value=self.connection)
-
-    def _patch_vpc_connection(self):
-        return patch('ec2.types.get_vpc_connection', return_value=self.vpc_connection)
-
+class BaseTestCase(unittest.TestCase):
     def setUp(self):
         ec2.credentials.ACCESS_KEY_ID = 'abc'
         ec2.credentials.SECRET_ACCESS_KEY = 'xyz'
@@ -82,9 +76,19 @@ class InstancesTestCase(unittest.TestCase):
         ec2.security_groups.clear()
         ec2.vpcs.clear()
 
+    def _patch_connection(self):
+        return patch('ec2.types.get_connection', return_value=self.connection)
+
+    def _patch_vpc_connection(self):
+        return patch('ec2.types.get_vpc_connection', return_value=self.vpc_connection)
+
+
+class CredentialsTestCase(BaseTestCase):
     def test_credentials(self):
         self.assertEquals(dict(**ec2.credentials()), {'aws_access_key_id': 'abc', 'aws_secret_access_key': 'xyz', 'region_name': 'us-east-1'})
 
+
+class ConnectionTestCase(BaseTestCase):
     def test_connect(self):
         with patch('boto.ec2.connect_to_region') as mock:
             ec2.connection.get_connection()
@@ -94,7 +98,9 @@ class InstancesTestCase(unittest.TestCase):
             ec2.connection.get_vpc_connection()
             mock.assert_called_once_with(aws_access_key_id='abc', aws_secret_access_key='xyz', region_name='us-east-1')
 
-    def test_instances_all(self):
+
+class InstancesTestCase(BaseTestCase):
+    def test_all(self):
         "instances.all() should iterate over all reservations and collect all instances, then cache the results"
         with self._patch_connection() as mock:
             instances = ec2.instances.all()
@@ -105,24 +111,7 @@ class InstancesTestCase(unittest.TestCase):
             ec2.instances.all()
             mock.assert_called_once()  # Should only be called once from the initial _connect
 
-    def test_security_groups_all(self):
-        with self._patch_connection() as mock:
-            groups = ec2.security_groups.all()
-            self.assertEquals(2, len(groups))
-            # all() should cache the connection and list of instances
-            # so when calling a second time, _connect() shouldn't
-            # be called
-            ec2.security_groups.all()
-            mock.assert_called_once()
-
-    def test_vpcs_all(self):
-        with self._patch_vpc_connection() as mock:
-            vpcs = ec2.vpcs.all()
-            self.assertEquals(2, len(vpcs))
-            ec2.vpcs.all()
-            mock.assert_called_once()
-
-    def test_instances_filters_integration(self):
+    def test_filters_integration(self):
         with self._patch_connection():
             instances = ec2.instances.filter(state='crap')
             self.assertEquals(0, len(instances))
@@ -176,7 +165,37 @@ class InstancesTestCase(unittest.TestCase):
             instances = ec2.instances.filter(id__isnull=True)
             self.assertEquals(0, len(instances))
 
-    def test_security_groups_filters_integration(self):
+    def test_get_raises(self):
+        with self._patch_connection():
+            self.assertRaises(
+                ec2.instances.MultipleObjectsReturned,
+                ec2.instances.get,
+                id__startswith='i'
+            )
+
+            self.assertRaises(
+                ec2.instances.DoesNotExist,
+                ec2.instances.get,
+                name='crap'
+            )
+
+    def test_get(self):
+        with self._patch_connection():
+            self.assertEquals(ec2.instances.get(id='i-abc0').id, 'i-abc0')
+
+
+class SecurityGroupsTestCase(BaseTestCase):
+    def test_all(self):
+        with self._patch_connection() as mock:
+            groups = ec2.security_groups.all()
+            self.assertEquals(2, len(groups))
+            # all() should cache the connection and list of instances
+            # so when calling a second time, _connect() shouldn't
+            # be called
+            ec2.security_groups.all()
+            mock.assert_called_once()
+
+    def test_filters_integration(self):
         with self._patch_connection():
             groups = ec2.security_groups.filter(name='crap')
             self.assertEquals(0, len(groups))
@@ -220,7 +239,34 @@ class InstancesTestCase(unittest.TestCase):
             groups = ec2.security_groups.filter(id__isnull=True)
             self.assertEquals(0, len(groups))
 
-    def test_vpc_filters_integration(self):
+    def test_get_raises(self):
+        with self._patch_connection():
+            self.assertRaises(
+                ec2.security_groups.MultipleObjectsReturned,
+                ec2.security_groups.get,
+                id__startswith='sg'
+            )
+
+            self.assertRaises(
+                ec2.security_groups.DoesNotExist,
+                ec2.security_groups.get,
+                name='crap'
+            )
+
+    def test_get(self):
+        with self._patch_connection():
+            self.assertEquals(ec2.security_groups.get(id='sg-abc0').id, 'sg-abc0')
+
+
+class VPCTestCase(BaseTestCase):
+    def test_all(self):
+        with self._patch_vpc_connection() as mock:
+            vpcs = ec2.vpcs.all()
+            self.assertEquals(2, len(vpcs))
+            ec2.vpcs.all()
+            mock.assert_called_once()
+
+    def test_filters_integration(self):
         with self._patch_vpc_connection():
             groups = ec2.vpcs.filter(id__exact='vpc-abc0')
             self.assertEquals(1, len(groups))
@@ -261,43 +307,7 @@ class InstancesTestCase(unittest.TestCase):
             groups = ec2.vpcs.filter(id__isnull=True)
             self.assertEquals(0, len(groups))
 
-    def test_instances_get_raises(self):
-        with self._patch_connection():
-            self.assertRaises(
-                ec2.instances.MultipleObjectsReturned,
-                ec2.instances.get,
-                id__startswith='i'
-            )
-
-            self.assertRaises(
-                ec2.instances.DoesNotExist,
-                ec2.instances.get,
-                name='crap'
-            )
-
-    def test_instances_get(self):
-        with self._patch_connection():
-            self.assertEquals(ec2.instances.get(id='i-abc0').id, 'i-abc0')
-
-    def test_security_groups_get_raises(self):
-        with self._patch_connection():
-            self.assertRaises(
-                ec2.security_groups.MultipleObjectsReturned,
-                ec2.security_groups.get,
-                id__startswith='sg'
-            )
-
-            self.assertRaises(
-                ec2.security_groups.DoesNotExist,
-                ec2.security_groups.get,
-                name='crap'
-            )
-
-    def test_security_groups_get(self):
-        with self._patch_connection():
-            self.assertEquals(ec2.security_groups.get(id='sg-abc0').id, 'sg-abc0')
-
-    def test_vpcs_get_raises(self):
+    def test_get_raises(self):
         with self._patch_vpc_connection():
             self.assertRaises(
                 ec2.vpcs.MultipleObjectsReturned,
@@ -311,7 +321,7 @@ class InstancesTestCase(unittest.TestCase):
                 name='crap'
             )
 
-    def test_vpcs_get(self):
+    def test_get(self):
         with self._patch_vpc_connection():
             self.assertEquals(ec2.vpcs.get(id='vpc-abc0').id, 'vpc-abc0')
 
