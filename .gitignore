@@ -28,3 +28,6 @@ pip-log.txt
 
 # virtualenv
 env
+
+# vim
+*.swp

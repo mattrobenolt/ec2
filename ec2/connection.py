@@ -8,8 +8,10 @@ ec2.connection
 
 import os
 import boto.ec2
+import boto.vpc
 
 _connection = None
+_vpc_connection = None
 
 
 def get_connection():
@@ -18,6 +20,13 @@ def get_connection():
     if _connection is None:
         _connection = boto.ec2.connect_to_region(**credentials())
     return _connection
+
+
+def get_vpc_connection():
+    global _vpc_connection
+    if _vpc_connection is None:
+        _vpc_connection = boto.vpc.connect_to_region(**credentials())
+    return _vpc_connection
 
 
 class credentials(object):
