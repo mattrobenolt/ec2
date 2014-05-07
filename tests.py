@@ -80,6 +80,7 @@ class InstancesTestCase(unittest.TestCase):
         ec2.credentials.REGION_NAME = 'us-east-1'
         ec2.instances.clear()
         ec2.security_groups.clear()
+        ec2.vpcs.clear()
 
     def test_credentials(self):
         self.assertEquals(dict(**ec2.credentials()), {'aws_access_key_id': 'abc', 'aws_secret_access_key': 'xyz', 'region_name': 'us-east-1'})
@@ -309,6 +310,10 @@ class InstancesTestCase(unittest.TestCase):
                 ec2.vpcs.get,
                 name='crap'
             )
+
+    def test_vpcs_get(self):
+        with self._patch_vpc_connection():
+            self.assertEquals(ec2.vpcs.get(id='vpc-abc0').id, 'vpc-abc0')
 
 
 class ComparisonTests(unittest.TestCase):
