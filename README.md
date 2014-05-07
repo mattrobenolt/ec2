@@ -36,6 +36,11 @@ ec2.instances.all()
 ec2.security_groups.all()
 ```
 
+### All Virtual Private Clouds
+```python
+ec2.vpcs.all()
+```
+
 ### Filtering
 *Filter style is based on Django's ORM*
 All filters map directly to instance/security group properties.
@@ -74,12 +79,18 @@ Filters can also be used with security groups.
 ec2.security_groups.filter(name__iexact='PRODUCTION-WEB')
 ```
 
+Filters can also be used with virtual private clouds.
+```python
+ec2.vpcs.filter(cidr_blocks__startswith='10.10')
+```
+
 `get()` works exactly the same as `filter()`, except it returns just one instance and raises an exception for anything else.
 ```python
 ec2.instances.get(name='production-web-01')  # Return a single instance
 ec2.instances.get(name='i-dont-exist')  # Raises an `ec2.instances.DoesNotExist` exception
 ec2.instances.get(name__like=r'^production-web-\d+$')  # Raises an `ec2.instances.MultipleObjectsReturned` exception if matched more than one instance
 ec2.security_groups.get(name__startswith='production')  # Raises an `ec2.security_groups.MultipleObjectsReturned` exception
+ec2.vpcs.get(cidr_block='10.10.0.0/16')
 ```
 
 ### Search fields
@@ -100,6 +111,14 @@ All fields can be found at: https://github.com/boto/boto/blob/d91ed8/boto/ec2/in
  * id *(Security Group id)*
  * name
  * vpc_id
+
+#### Virtual Private Clouds
+ * id *(Virtual Private Cloud id)*
+ * cidr_block *(CIDR Network Block of the VPC)*
+ * state *(Current state of the VPC, creation is not instant)*
+ * is_default
+ * instance_tenancy
+ * dhcp_options_id *(DHCP options id)*
 
 
 ## Examples
