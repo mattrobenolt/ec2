@@ -16,7 +16,10 @@ class instances(objects_base):
     @classmethod
     def _all(cls):
         "Grab all AWS instances"
-        return [i for r in get_connection().get_all_instances() for i in r.instances]
+        return [
+            i for r in get_connection().get_all_instances()
+            for i in r.instances
+        ]
 
 
 class security_groups(objects_base):

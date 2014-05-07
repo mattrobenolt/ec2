@@ -29,7 +29,7 @@ class Compare(object):
     def exact(key, value, obj):
         try:
             return getattr(obj, key) == value
-        except AttributeError as e:
+        except AttributeError:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -43,7 +43,7 @@ class Compare(object):
         value = value.lower()
         try:
             return getattr(obj, key).lower() == value
-        except AttributeError as e:
+        except AttributeError:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -55,11 +55,12 @@ class Compare(object):
     @staticmethod
     def like(key, value, obj):
         if isinstance(value, basestring):
-            # If a string is passed in, we want to convert it to a pattern object
+            # If a string is passed in,
+            # we want to convert it to a pattern object
             value = re.compile(value)
         try:
             return bool(value.match(getattr(obj, key)))
-        except AttributeError as e:
+        except AttributeError:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -80,7 +81,7 @@ class Compare(object):
     def contains(key, value, obj):
         try:
             return value in getattr(obj, key)
-        except AttributeError as e:
+        except AttributeError:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -94,7 +95,7 @@ class Compare(object):
         value = value.lower()
         try:
             return value in getattr(obj, key).lower()
-        except AttributeError as e:
+        except AttributeError:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -107,7 +108,7 @@ class Compare(object):
     def startswith(key, value, obj):
         try:
             return getattr(obj, key).startswith(value)
-        except AttributeError as e:
+        except AttributeError:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -121,7 +122,7 @@ class Compare(object):
         value = value.lower()
         try:
             return getattr(obj, key).startswith(value)
-        except AttributeError as e:
+        except AttributeError:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -134,7 +135,7 @@ class Compare(object):
     def endswith(key, value, obj):
         try:
             return getattr(obj, key).endswith(value)
-        except AttributeError as e:
+        except AttributeError:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:
@@ -148,7 +149,7 @@ class Compare(object):
         value = value.lower()
         try:
             return getattr(obj, key).endswith(value)
-        except AttributeError as e:
+        except AttributeError:
             # Fall back to checking tags
             if hasattr(obj, 'tags'):
                 for tag in obj.tags:

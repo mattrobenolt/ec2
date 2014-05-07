@@ -34,7 +34,11 @@ class credentials(object):
 
     def __getitem__(self, item):
         item = item.upper()
-        return os.environ.get(item) or getattr(self, item, None) or getattr(self, item[4:])
+        return (
+            os.environ.get(item) or
+            getattr(self, item, None) or
+            getattr(self, item[4:])
+        )
 
     @classmethod
     def from_file(cls, filename):
