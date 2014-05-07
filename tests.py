@@ -55,6 +55,8 @@ class InstancesTestCase(unittest.TestCase):
         ec2.credentials.ACCESS_KEY_ID = None
         ec2.credentials.SECRET_ACCESS_KEY = None
         ec2.credentials.REGION_NAME = 'us-east-1'
+        ec2.instances.clear()
+        ec2.security_groups.clear()
 
     def test_credentials(self):
         self.assertEquals(dict(**ec2.credentials()), {'aws_access_key_id': 'abc', 'aws_secret_access_key': 'xyz', 'region_name': 'us-east-1'})
@@ -197,6 +199,10 @@ class InstancesTestCase(unittest.TestCase):
                 name='crap'
             )
 
+    def test_instances_get(self):
+        with self._patch_connection():
+            self.assertEquals(ec2.instances.get(id='i-abc0').id, 'i-abc0')
+
     def test_security_groups_get_raises(self):
         with self._patch_connection():
             self.assertRaises(
@@ -210,6 +216,10 @@ class InstancesTestCase(unittest.TestCase):
                 ec2.security_groups.get,
                 name='crap'
             )
+
+    def test_security_groups_get(self):
+        with self._patch_connection():
+            self.assertEquals(ec2.security_groups.get(id='sg-abc0').id, 'sg-abc0')
 
 
 class ComparisonTests(unittest.TestCase):
@@ -378,6 +388,11 @@ class ComparisonTests(unittest.TestCase):
         self.assertFalse(ec2.helpers.Compare.isnull('foo', False, i))
         self.assertFalse(ec2.helpers.Compare.isnull('name', True, i))
         self.assertFalse(ec2.helpers.Compare.isnull('name', False, i))
+
+    def test_unknown_key(self):
+        i = self.instance
+        for attr in ('exact', 'iexact', 'like', 'ilike', 'contains', 'icontains', 'startswith', 'istartswith', 'endswith', 'iendswith'):
+            self.assertFalse(getattr(ec2.helpers.Compare, attr)('lol', 'foo', i))
 
 
 if __name__ == '__main__':
