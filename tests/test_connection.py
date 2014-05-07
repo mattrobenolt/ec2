@@ -18,3 +18,14 @@ class ConnectionTestCase(BaseTestCase):
 class CredentialsTestCase(BaseTestCase):
     def test_credentials(self):
         self.assertEquals(dict(**ec2.credentials()), {'aws_access_key_id': 'abc', 'aws_secret_access_key': 'xyz', 'region_name': 'us-east-1'})
+
+    def test_from_bad_file(self):
+        self.assertRaises(
+            IOError,
+            ec2.credentials.from_file,
+            'tests/base.py'
+        )
+
+    def test_from_file(self):
+        ec2.credentials.from_file('tests/credentials.csv')
+        self.assertEquals(dict(**ec2.credentials()), {'aws_access_key_id': 'foo', 'aws_secret_access_key': 'bar', 'region_name': 'us-east-1'})
