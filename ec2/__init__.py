@@ -9,7 +9,7 @@ ec2
 try:
     __version__ = __import__('pkg_resources') \
         .get_distribution('ec2').version
-except Exception:
+except Exception:  # pragma: no cover
     __version__ = 'unknown'
 
 __author__ = 'Matt Robenolt <matt@ydekproductions.com>'
