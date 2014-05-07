@@ -4,6 +4,7 @@ python:
   - "2.7"
   - "pypy"
 install:
-  - pip install -r dev_requirements.txt
-  - pip install .
-script: make test
+  - make bootstrap
+script:
+  - make lint
+  - py.test --cov ec2 --cov-report term-missing

@@ -1,2 +1,5 @@
 boto
 mock
+pytest
+pytest-cov
+flake8
